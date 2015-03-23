@@ -1,0 +1,16 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\BoardController.cs">
+    <Files>
+      <File FileName="Assets\Scripts\PipeLayerController.cs" Line="6" Column="1" />
+      <File FileName="Assets\Scripts\BoardController.cs" Line="51" Column="35" />
+      <File FileName="Assets\Scripts\TileBehaviour.cs" Line="18" Column="32" />
+      <File FileName="Assets\Scripts\BoardGenerator.cs" Line="51" Column="7" />
+      <File FileName="Assets\Scripts\GameControll.cs" Line="7" Column="38" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
