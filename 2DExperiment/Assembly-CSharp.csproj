@@ -54,6 +54,8 @@
      <Compile Include="Assets\Scripts\GameControll.cs" />
      <Compile Include="Assets\Scripts\InputHandler.cs" />
      <Compile Include="Assets\Scripts\PipeLayerController.cs" />
+     <Compile Include="Assets\Scripts\PipeSegmentManager.cs" />
+     <Compile Include="Assets\Scripts\PrefabManager.cs" />
      <Compile Include="Assets\Scripts\TileBehaviour.cs" />
      <None Include="Assets\Standard Assets (Mobile)\Shaders\Particle Shaders\Mobile Multiply Culled.shader" />
      <None Include="Assets\Standard Assets (Mobile)\Shaders\Miscellaneous Shaders\Mobile Background.shader" />

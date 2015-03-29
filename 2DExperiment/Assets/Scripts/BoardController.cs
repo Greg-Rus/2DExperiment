@@ -31,11 +31,13 @@ public class BoardController : MonoBehaviour {
 	private bool selectionOngoing;
 	private bool selectionEnd;
 	private LineRenderer myLineRenderer;
+	private Transform myTransform;
 	
 	
 	void Awake(){
 		instance = this;
 		myLineRenderer = GetComponent<LineRenderer>();
+		myTransform = transform;
 	}
 	
 	public void startNewGame () {
@@ -180,16 +182,16 @@ public class BoardController : MonoBehaviour {
 	TileBehaviour spawnRandomTile(int i, int j)
 	{
 		GameObject newTileType = tiles[Random.Range(0,tiles.Length)];
-		newTile = Instantiate(newTileType, new Vector3(i,j,-1f), Quaternion.identity) as GameObject;
-		newTile.transform.parent = transform;
+		newTile = Instantiate(newTileType, new Vector3(i,j,myTransform.position.z), Quaternion.identity) as GameObject;
+		newTile.transform.parent = myTransform;
 		newTileBehaviour = newTile.GetComponent<TileBehaviour>() as TileBehaviour;
 		return newTileBehaviour;
 	}
 	TileBehaviour spawnRandomTileAtTopOfColumn(int i)
 	{
 		GameObject newTileType = tiles[Random.Range(0,tiles.Length)];
-		newTile = Instantiate(newTileType, new Vector3(i,boardHeight,-1f), Quaternion.identity) as GameObject;
-		newTile.transform.parent = transform;
+		newTile = Instantiate(newTileType, new Vector3(i,boardHeight,myTransform.position.z), Quaternion.identity) as GameObject;
+		newTile.transform.parent = myTransform;
 		newTileBehaviour = newTile.GetComponent<TileBehaviour>() as TileBehaviour;
 		return newTileBehaviour;
 	}

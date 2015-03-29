@@ -17,6 +17,8 @@ public class GameControll : MonoBehaviour {
 	private Animator menuAnimator;
 	public InputField selectedWidth;
 	public InputField selectedHeight;
+	public Toggle usePipesToggle;
+	public PrefabManager prefabManager;
 	// Use this for initialization
 	void Awake(){
 		instance = this;
@@ -26,13 +28,19 @@ public class GameControll : MonoBehaviour {
 	void Start()
 	{
 		boardController.enabled = false;
+		#if UNITY_EDITOR
+		startGame();
+		#endif
 	}
+
 	
 	public void startGame()
 	{
 		setBoardWidthAndHeight();
 		initialComponentSetup();
 		boardGenerator.setUpBoard();
+		if(usePipesToggle.isOn)	pipeLayerController.setUpPipeSegments();
+		else pipeLayerController.cleanUpOldPipes();
 		boardController.startNewGame();
 		boardController.enabled = true;
 		hideOptionsMenu();
