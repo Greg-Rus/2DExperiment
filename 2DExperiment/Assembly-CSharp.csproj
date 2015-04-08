@@ -54,6 +54,7 @@
      <Compile Include="Assets\Scripts\GameControll.cs" />
      <Compile Include="Assets\Scripts\InputHandler.cs" />
      <Compile Include="Assets\Scripts\PipeLayerController.cs" />
+     <Compile Include="Assets\Scripts\PipeManager.cs" />
      <Compile Include="Assets\Scripts\PipeSegmentManager.cs" />
      <Compile Include="Assets\Scripts\PrefabManager.cs" />
      <Compile Include="Assets\Scripts\TileBehaviour.cs" />

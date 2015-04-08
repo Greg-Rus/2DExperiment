@@ -5,4 +5,6 @@ public class PrefabManager : MonoBehaviour {
 
 	public GameObject HV_Arrow;
 	public GameObject X_Arrow;
+	public GameObject [] pipeTiles;
+	public GameObject pipeSegment;
 }

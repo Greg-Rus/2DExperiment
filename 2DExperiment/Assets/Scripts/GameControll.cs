@@ -29,7 +29,7 @@ public class GameControll : MonoBehaviour {
 	{
 		boardController.enabled = false;
 		#if UNITY_EDITOR
-		startGame();
+		//startGame();
 		#endif
 	}
 

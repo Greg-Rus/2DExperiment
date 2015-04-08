@@ -1,8 +1,11 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace />
-  <MonoDevelop.Ide.Workbench ActiveDocument="..\..\Game\Emergence\Assets\Scripts\GameController.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\PipeLayerController.cs">
     <Files>
-      <File FileName="..\..\Game\Emergence\Assets\Scripts\GameController.cs" Line="15" Column="4" />
+      <File FileName="Assets\Scripts\PipeManager.cs" Line="7" Column="29" />
+      <File FileName="Assets\Scripts\GameControll.cs" Line="32" Column="5" />
+      <File FileName="Assets\Scripts\PipeLayerController.cs" Line="107" Column="68" />
+      <File FileName="Assets\Scripts\PrefabManager.cs" Line="9" Column="32" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
