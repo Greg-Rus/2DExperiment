@@ -32,6 +32,7 @@ public class BoardController : MonoBehaviour {
 	private bool selectionEnd;
 	private LineRenderer myLineRenderer;
 	private Transform myTransform;
+	private float defaultTileMoveTimeInSec = 0.4f;
 	
 	
 	void Awake(){
@@ -141,15 +142,59 @@ public class BoardController : MonoBehaviour {
 			//need to think about score multiplyers.
 			score += link.Count;
 			scoreUI.text = score.ToString();
-			foreach (TileBehaviour tile in link)
+//			foreach (TileBehaviour tile in link)
+//			{
+//				boardTiles[tile.x, tile.y] = null;
+//				Destroy (tile.gameObject);		
+//			}
+			collectLinkedTiles();
+//			link.Clear();
+//			updateLinkLines();
+		}
+//		dropTiles();
+	}
+	private void collectLinkedTiles()
+	{
+		for (int linkIndex = 0; linkIndex < link.Count -1; linkIndex++)
+		{
+			//Debug.Log ("Start set for linkIndex: " + linkIndex);
+			StartCoroutine(followLinkToLastTile(linkIndex));
+		}
+		
+		//StartCoroutine(followLinkToLastTile(0));
+
+	}
+	private IEnumerator followLinkToLastTile(int tileIndexInLink)
+	{
+		float moveSpeed = defaultTileMoveTimeInSec;// / (link.Count - (tileIndexInLink +1) );
+		for (int i = tileIndexInLink; i< link.Count -1 ; i++)
+		{
+			yield return StartCoroutine(link[tileIndexInLink].cMoveTile(link[i+1].x, link[i+1].y, moveSpeed));
+			if(tileIndexInLink == 0)
 			{
-				boardTiles[tile.x, tile.y] = null;
-				Destroy (tile.gameObject);		
+				boardTiles[link[i].x, link[i].y] = null;
+				bool tileAboveInLink = false;
+				for (int j = i+1; j<link.Count -1 ; j++)
+				{
+					if(link[j].x == link[i].x && link[j].y > link[i].y) tileAboveInLink = true;
+				}
+				if(!tileAboveInLink)
+				{
+					dropTilesInColumn(link[i].x);
+				}
+			}
+		}
+		if(tileIndexInLink == 0)
+		{
+			boardTiles[link[link.Count-1].x, link[link.Count-1].y] = null;
+			dropTilesInColumn(link[link.Count-1].x);
+			foreach(TileBehaviour tile in link)
+			{
+				Destroy (tile.gameObject);
 			}
 			link.Clear();
 			updateLinkLines();
 		}
-		dropTiles();
 	}
 	
 	void initialSetup()
@@ -175,6 +220,7 @@ public class BoardController : MonoBehaviour {
 		else return false;
 	}
 	
+	//Unused??
 	bool hasRoomToFall(int i, int j){
 		return boardTiles[i,j-1] == null ? true : false;
 	}
@@ -197,6 +243,7 @@ public class BoardController : MonoBehaviour {
 	}
 	
 	//New - scan columns and make tiles drop an appropreate distance. Spawn new tiles at once.
+	//To be depricated because of new link slide effect.
 	void dropTiles()
 	{
 		for (int i = 0; i < boardWidth; i++)
@@ -209,7 +256,7 @@ public class BoardController : MonoBehaviour {
 				{
 					droppedTiles[droppedTilesIndex] = boardTiles[i,j];
 					if (droppedTiles[droppedTilesIndex].y != droppedTilesIndex){
-						droppedTiles[droppedTilesIndex].fallDistance(droppedTiles[droppedTilesIndex].y - droppedTilesIndex);
+						droppedTiles[droppedTilesIndex].fallToRow(droppedTilesIndex);
 						droppedTiles[droppedTilesIndex].y = droppedTilesIndex;
 					}
 					droppedTilesIndex++;
@@ -225,10 +272,42 @@ public class BoardController : MonoBehaviour {
 				{
 					boardTiles[i,k] = spawnRandomTileAtTopOfColumn(i);
 					
-					boardTiles[i,k].fallDistance(boardHeight - k);
+					boardTiles[i,k].fallToRow(k);
 					boardTiles[i,k].x = i;
 					boardTiles[i,k].y = k;
 				}
+			}
+		}
+	}
+	void dropTilesInColumn(int column)
+	{
+		TileBehaviour[] droppedTiles = new TileBehaviour[boardHeight];
+		int droppedTilesIndex =0;
+		for (int j = 0; j < boardHeight; j++)
+		{
+			if(boardTiles[column,j] != null)
+			{
+				droppedTiles[droppedTilesIndex] = boardTiles[column,j];
+				if (droppedTiles[droppedTilesIndex].y != droppedTilesIndex){
+					droppedTiles[droppedTilesIndex].fallToRow(droppedTilesIndex);
+					droppedTiles[droppedTilesIndex].y = droppedTilesIndex;
+				}
+				droppedTilesIndex++;
+			}
+		}
+		for (int k =0; k< boardHeight; k++)
+		{
+			if(droppedTiles[k] != null)
+			{
+				boardTiles[column,k] = droppedTiles[k];
+			}
+			else
+			{
+				boardTiles[column,k] = spawnRandomTileAtTopOfColumn(column);
+				
+				boardTiles[column,k].fallToRow(k);
+				boardTiles[column,k].x = column;
+				boardTiles[column,k].y = k;
 			}
 		}
 	}
