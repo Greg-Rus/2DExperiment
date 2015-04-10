@@ -166,19 +166,15 @@ public class BoardController : MonoBehaviour {
 	}
 	private IEnumerator followLinkToLastTile(int tileIndexInLink)
 	{
-		float moveSpeed = defaultTileMoveTimeInSec;// / (link.Count - (tileIndexInLink +1) );
+		float moveSpeed = defaultTileMoveTimeInSec / (link.Count - (tileIndexInLink +1) );
 		for (int i = tileIndexInLink; i< link.Count -1 ; i++)
 		{
 			yield return StartCoroutine(link[tileIndexInLink].cMoveTile(link[i+1].x, link[i+1].y, moveSpeed));
 			if(tileIndexInLink == 0)
 			{
 				boardTiles[link[i].x, link[i].y] = null;
-				bool tileAboveInLink = false;
-				for (int j = i+1; j<link.Count -1 ; j++)
-				{
-					if(link[j].x == link[i].x && link[j].y > link[i].y) tileAboveInLink = true;
-				}
-				if(!tileAboveInLink)
+
+				if(checkLinkForTileAbove(i) == false)
 				{
 					dropTilesInColumn(link[i].x);
 				}
@@ -192,9 +188,35 @@ public class BoardController : MonoBehaviour {
 			{
 				Destroy (tile.gameObject);
 			}
+			spawnTilePaticleGenerator();
 			link.Clear();
 			updateLinkLines();
 		}
+	}
+	
+	private void spawnTilePaticleGenerator()
+	{
+		ParticleSystem particleSystem = Instantiate(GameControll.instance.prefabManager.tileParticleSystems[(int)link[link.Count-1].tileType],
+		                                        link[link.Count-1].transform.position,
+		                                            Quaternion.identity) as ParticleSystem;
+                             
+		particleSystem.maxParticles = link.Count;
+		particleSystem.Play();
+		Destroy(particleSystem,2f);                                       
+	}
+	
+	private bool checkLinkForTileAbove(int linkTileIndex)
+		//Necessary to prevent calling dropTilesInColumn if the link contains a tile in the same column but higher. This tile should block other tiles from falling.
+	{
+		bool tileAboveInLink = false;
+		for (int j = linkTileIndex+1; j<link.Count ; j++) //start with the next tile in the link
+		{
+			if(link[j].x == link[linkTileIndex].x && link[j].y > link[linkTileIndex].y) //check if any consecutive tile in link is in the same column but higher.
+			{
+				tileAboveInLink = true;
+			}
+		}
+		return tileAboveInLink;
 	}
 	
 	void initialSetup()
@@ -231,6 +253,7 @@ public class BoardController : MonoBehaviour {
 		newTile = Instantiate(newTileType, new Vector3(i,j,myTransform.position.z), Quaternion.identity) as GameObject;
 		newTile.transform.parent = myTransform;
 		newTileBehaviour = newTile.GetComponent<TileBehaviour>() as TileBehaviour;
+		
 		return newTileBehaviour;
 	}
 	TileBehaviour spawnRandomTileAtTopOfColumn(int i)

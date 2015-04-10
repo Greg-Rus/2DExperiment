@@ -2,7 +2,8 @@
 using System.Collections;
 using UnityEngine.EventSystems;
 
-public enum TileType {Green, Blue, Yellow, Red, Purple}
+//public enum TileType {Green, Blue, Yellow, Red, Purple}
+public enum TileType {Finance, Science, Industry, Military, Social}
 
 public class TileBehaviour : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler {
 
@@ -17,6 +18,7 @@ public class TileBehaviour : MonoBehaviour, IPointerClickHandler, IPointerDownHa
 	private float bounceHeight = 0.1f;
 	private float bounceTime = 0.1f;
 	private Transform myTransform;
+	private IEnumerator tileMovement;
 	
 	// Use this for initialization
 	void Awake () {
@@ -65,15 +67,39 @@ public class TileBehaviour : MonoBehaviour, IPointerClickHandler, IPointerDownHa
 	}
 	public void fallToRow(int distance)
 	{
+		if(tileMovement == null)
+		{
+			//Debug.Log("Falling is " + falling);
+			tileMovement = cMoveTile(myTransform.position.x, distance, defaultFallTimeInSec, true);
+			StartCoroutine(tileMovement);
+		}
+		else
+		{
+			//Debug.Log ("Stopping move coroutine");
+			StopCoroutine(tileMovement);
+			tileMovement = cMoveTile(myTransform.position.x, distance, defaultFallTimeInSec, true);
+			StartCoroutine(tileMovement);
+		}
 		
 		StartCoroutine(cMoveTile(myTransform.position.x, distance, defaultFallTimeInSec, true));
 		
 	}
 	public void moveTo(int x, int y, float time = defaultFallTimeInSec)
 	{
-		StartCoroutine(cMoveTile(x,
-		                     y,
-		                     time));
+		if(tileMovement == null)
+		{
+			//Debug.Log("Falling is " + falling);
+			tileMovement = cMoveTile(x, y, time);
+			StartCoroutine(tileMovement);
+		}
+		else
+		{
+			//Debug.Log ("Stopping move coroutine");
+			StopCoroutine(tileMovement);
+			tileMovement = cMoveTile(x, y, time);
+			StartCoroutine(tileMovement);
+		}
+
 	}
 	
 	public IEnumerator cMoveTile(float x, float y, float time, bool shouldBounce = false)
@@ -98,7 +124,7 @@ public class TileBehaviour : MonoBehaviour, IPointerClickHandler, IPointerDownHa
 		}
 		myTransform.position = new Vector3(x, y, myTransform.position.z);
 		falling = false;
-		
+		tileMovement=null;
 	}
 	private IEnumerator bounce(Vector3 position, float height, float time)
 	{

@@ -7,4 +7,6 @@ public class PrefabManager : MonoBehaviour {
 	public GameObject X_Arrow;
 	public GameObject [] pipeTiles;
 	public GameObject pipeSegment;
+	public ParticleSystem [] tileParticleSystems;
+
 }
