@@ -5,12 +5,15 @@ using UnityEngine.EventSystems;
 //public enum TileType {Green, Blue, Yellow, Red, Purple}
 public enum TileType {Finance, Science, Industry, Military, Social}
 
-public class TileBehaviour : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler {
+public class TileBehaviour : MonoBehaviour{
 
 	public int x;
 	public int y;
 	public TileType tileType;
-	public bool falling;
+	public bool moving;
+	public int linkPosition = -1;
+	public string destroyerMessage;
+	public TileInputHandler myInputHandler;
 	
 	
 	public float selectedScale = 0.6f;
@@ -19,112 +22,103 @@ public class TileBehaviour : MonoBehaviour, IPointerClickHandler, IPointerDownHa
 	private float bounceTime = 0.1f;
 	private Transform myTransform;
 	private IEnumerator tileMovement;
+	private Coroutine tileMovementCoroutine;
 	
 	// Use this for initialization
 	void Awake () {
 		myTransform = transform;
 	}
 	
-	// Update is called once per frame
-	public void  OnPointerClick (PointerEventData eventData) {
-		//Debug.Log ("Works");
-	}
-	public void OnPointerDown(PointerEventData eventData)
-	{
-		//Debug.Log(this.tag);
-	}
-	public void OnPointerEnter(PointerEventData eventData)
-	{
-		BoardController.instance.selectedTile(this);
-	}
-	public void OnPointerExit(PointerEventData eventData)
-	{
-		BoardController.instance.unselectedTile(this);
-	}
-	
-	public void isSelected()
-	{
-		ReactOnSelected();
-	}
-	public void isDeselected(){
-		ReactOnDeselected();
-	}
-	
-	private void ReactOnSelected()
-	{
-		transform.localScale = new Vector3 (selectedScale, selectedScale, selectedScale);
-	}
-	private void ReactOnDeselected(){
-		transform.localScale = new Vector3 (1f, 1f, 1f);
-	}
-	
-	public void fallOneRow()
+	void Update()
 	{
 		
-		Vector3 position = transform.position;
-//		StartCoroutine(cMoveTile(position, position.y - 1f, defaultFallTimeInSec));
-		
 	}
+
+	public void selfDestroy()
+	{
+		if(tileMovement != null)
+		{
+			Debug.Log ("Should destroy but busy");
+			StopCoroutine(tileMovement);
+			Destroy (transform.gameObject);
+		}
+		else
+		{
+			Destroy (transform.gameObject);
+		}
+	}
+	private IEnumerator destroyAfterCoroutineFinished(IEnumerator coroutine)
+	{
+		Debug.Log ("Waiting to destroy");
+		yield return coroutine;
+		Destroy (transform.gameObject);
+	}
+	
 	public void fallToRow(int distance)
 	{
 		if(tileMovement == null)
 		{
-			//Debug.Log("Falling is " + falling);
 			tileMovement = cMoveTile(myTransform.position.x, distance, defaultFallTimeInSec, true);
 			StartCoroutine(tileMovement);
 		}
 		else
 		{
-			//Debug.Log ("Stopping move coroutine");
 			StopCoroutine(tileMovement);
 			tileMovement = cMoveTile(myTransform.position.x, distance, defaultFallTimeInSec, true);
 			StartCoroutine(tileMovement);
 		}
 		
-		StartCoroutine(cMoveTile(myTransform.position.x, distance, defaultFallTimeInSec, true));
+		//StartCoroutine(cMoveTile(myTransform.position.x, distance, defaultFallTimeInSec, true));
 		
 	}
-	public void moveTo(int x, int y, float time = defaultFallTimeInSec)
+	
+	public void moveTileToPosition(int x, int y, float time = defaultFallTimeInSec)
+	{
+		
+	}
+	
+	public Coroutine moveTo(int x, int y, float time = defaultFallTimeInSec)
 	{
 		if(tileMovement == null)
 		{
-			//Debug.Log("Falling is " + falling);
 			tileMovement = cMoveTile(x, y, time);
-			StartCoroutine(tileMovement);
+			tileMovementCoroutine = StartCoroutine(tileMovement);
 		}
 		else
 		{
-			//Debug.Log ("Stopping move coroutine");
 			StopCoroutine(tileMovement);
 			tileMovement = cMoveTile(x, y, time);
-			StartCoroutine(tileMovement);
+			tileMovementCoroutine = StartCoroutine(tileMovement);
 		}
+		return tileMovementCoroutine;
 
 	}
 	
-	public IEnumerator cMoveTile(float x, float y, float time, bool shouldBounce = false)
+	public IEnumerator cMoveTile(float x, float y, float time, bool shouldBounce = false, string context = null)
 	{
-		falling = true;
+		moving = true;
 		float elapsedTime = 0;
 		Vector3 currentPosition = myTransform.position;
-		
+		string executionContext = context; 
+
 		while (elapsedTime < time)
 		{
-			
-			myTransform.position = new Vector3(Mathf.Lerp(currentPosition.x, x, (elapsedTime / time)),
-			                                   Mathf.Lerp(currentPosition.y, y, (elapsedTime / time)),
+			myTransform.position = new Vector3(Mathf.Lerp(currentPosition.x, x, (elapsedTime/time)), //(elapsedTime/time)
+			                                   Mathf.Lerp(currentPosition.y, y, (elapsedTime/time)), //(elapsedTime/time)
 			                                   currentPosition.z);
 			elapsedTime += Time.deltaTime;
 			yield return new WaitForEndOfFrame();
 			
 		}
+		myTransform.position = new Vector3(x, y, myTransform.position.z);
+		moving = false;
+		tileMovement=null;
+		
 		if (shouldBounce)
 		{
 			StartCoroutine(bounce(myTransform.position, myTransform.position.y + bounceHeight, bounceTime));
 		}
-		myTransform.position = new Vector3(x, y, myTransform.position.z);
-		falling = false;
-		tileMovement=null;
+
 	}
 	private IEnumerator bounce(Vector3 position, float height, float time)
 	{

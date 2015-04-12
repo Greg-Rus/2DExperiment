@@ -1,13 +1,9 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\BoardController.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\TileBehaviour.cs">
     <Files>
-      <File FileName="Assets\Scripts\BoardController.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\PipeManager.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\GameControll.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\PipeLayerController.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\PrefabManager.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\TileBehaviour.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\BoardController.cs" Line="17" Column="17" />
+      <File FileName="Assets\Scripts\TileBehaviour.cs" Line="142" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

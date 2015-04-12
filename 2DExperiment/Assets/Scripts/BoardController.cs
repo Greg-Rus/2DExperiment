@@ -17,6 +17,7 @@ public class BoardController : MonoBehaviour {
 		set{boardWidth = value;}
 	}
 	public Text scoreUI;
+	public int limiter =0;
 	
 	private TileBehaviour[,] boardTiles;
 	private GameObject newTile;
@@ -32,7 +33,7 @@ public class BoardController : MonoBehaviour {
 	private bool selectionEnd;
 	private LineRenderer myLineRenderer;
 	private Transform myTransform;
-	private float defaultTileMoveTimeInSec = 0.4f;
+	public float defaultTileMoveTimeInSec = 0.1f;
 	
 	
 	void Awake(){
@@ -97,7 +98,7 @@ public class BoardController : MonoBehaviour {
 		if(currentSelection != null)
 		{
 			link.Add (currentSelection);
-			currentSelection.isSelected();
+			currentSelection.myInputHandler.isSelected();
 			linkType = currentSelection.tileType;
 		}
 	}
@@ -112,13 +113,13 @@ public class BoardController : MonoBehaviour {
 			{
 				link.Add (currentSelection);
 				updateLinkLines();
-				currentSelection.isSelected();
+				currentSelection.myInputHandler.isSelected();
 			}
 			else
 			{
 				if(link.Count>=2 && currentSelection == link[link.Count-2])
 				{
-					link[link.Count-1].isDeselected();
+					link[link.Count-1].myInputHandler.isDeselected();
 					link.RemoveAt(link.Count-1);
 					updateLinkLines();
 				}
@@ -131,7 +132,7 @@ public class BoardController : MonoBehaviour {
 		{
 			foreach (TileBehaviour tile in link)
 			{
-				tile.isDeselected();
+				tile.myInputHandler.isDeselected();
 			}
 			link.Clear();
 			updateLinkLines();
@@ -155,6 +156,10 @@ public class BoardController : MonoBehaviour {
 	}
 	private void collectLinkedTiles()
 	{
+		for (int i =0; i< link.Count; i++)
+		{
+			link[i].linkPosition = i;
+		}
 		for (int linkIndex = 0; linkIndex < link.Count -1; linkIndex++)
 		{
 			//Debug.Log ("Start set for linkIndex: " + linkIndex);
@@ -166,15 +171,23 @@ public class BoardController : MonoBehaviour {
 	}
 	private IEnumerator followLinkToLastTile(int tileIndexInLink)
 	{
-		float moveSpeed = defaultTileMoveTimeInSec / (link.Count - (tileIndexInLink +1) );
-		for (int i = tileIndexInLink; i< link.Count -1 ; i++)
+		//It will take the same amount of time for all the tile in the linkt to be collected. 
+		//Maybe this should be a fixed speed rather, so that the player can enjoy a long tile slide?
+		float moveSpeed = defaultTileMoveTimeInSec;// / (link.Count - (tileIndexInLink +1) ); //<-Proportionate move speed. All tiles will arrive at destination in defaultTileMoveTimeInSec;
+		
+		//The tile for which the coroutine is called needs to follow a path allong the position of tiles further in the link,
+		// to reach the position of the last tile in the link.
+		for (int i = tileIndexInLink; i< link.Count -1 ; i++)  //loop over tiles further in the link starting from the selected tile.
 		{
-			yield return StartCoroutine(link[tileIndexInLink].cMoveTile(link[i+1].x, link[i+1].y, moveSpeed));
+			//yield return StartCoroutine(link[tileIndexInLink].cMoveTile(link[i+1].x, link[i+1].y, moveSpeed, false, "link move for link tile at: " + tileIndexInLink+ " Iteration: " + i)); //move to the next tile position
+			yield return link[tileIndexInLink].moveTo(link[i+1].x, link[i+1].y, moveSpeed);
+			//The tile at index 0 in the link is the last tile in the link. This tile finishes the slide effect.
+			//While there are tile mooving along the link the tiles above should not fall. Only after the last tile is moved should they drop.
 			if(tileIndexInLink == 0)
 			{
-				boardTiles[link[i].x, link[i].y] = null;
+				boardTiles[link[i].x, link[i].y] = null; //remove reference from vacated tile spot.
 
-				if(checkLinkForTileAbove(i) == false)
+				if(checkLinkForTileAbove(i) == false) //the tiles above should not drop it there are tiles in the link still holding them up.
 				{
 					dropTilesInColumn(link[i].x);
 				}
@@ -183,11 +196,12 @@ public class BoardController : MonoBehaviour {
 		if(tileIndexInLink == 0)
 		{
 			boardTiles[link[link.Count-1].x, link[link.Count-1].y] = null;
-			dropTilesInColumn(link[link.Count-1].x);
 			foreach(TileBehaviour tile in link)
 			{
-				Destroy (tile.gameObject);
+				tile.selfDestroy();
 			}
+			dropTilesInColumn(link[link.Count-1].x);
+		
 			spawnTilePaticleGenerator();
 			link.Clear();
 			updateLinkLines();
@@ -202,7 +216,7 @@ public class BoardController : MonoBehaviour {
                              
 		particleSystem.maxParticles = link.Count;
 		particleSystem.Play();
-		Destroy(particleSystem,2f);                                       
+		Destroy(particleSystem.gameObject,2f);                                       
 	}
 	
 	private bool checkLinkForTileAbove(int linkTileIndex)
@@ -249,7 +263,7 @@ public class BoardController : MonoBehaviour {
 	
 	TileBehaviour spawnRandomTile(int i, int j)
 	{
-		GameObject newTileType = tiles[Random.Range(0,tiles.Length)];
+		GameObject newTileType = tiles[Random.Range(0,tiles.Length - limiter)];
 		newTile = Instantiate(newTileType, new Vector3(i,j,myTransform.position.z), Quaternion.identity) as GameObject;
 		newTile.transform.parent = myTransform;
 		newTileBehaviour = newTile.GetComponent<TileBehaviour>() as TileBehaviour;
@@ -258,7 +272,7 @@ public class BoardController : MonoBehaviour {
 	}
 	TileBehaviour spawnRandomTileAtTopOfColumn(int i)
 	{
-		GameObject newTileType = tiles[Random.Range(0,tiles.Length)];
+		GameObject newTileType = tiles[Random.Range(0,tiles.Length-limiter)];
 		newTile = Instantiate(newTileType, new Vector3(i,boardHeight,myTransform.position.z), Quaternion.identity) as GameObject;
 		newTile.transform.parent = myTransform;
 		newTileBehaviour = newTile.GetComponent<TileBehaviour>() as TileBehaviour;
