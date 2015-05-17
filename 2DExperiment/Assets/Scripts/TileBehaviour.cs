@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 
 //public enum TileType {Green, Blue, Yellow, Red, Purple}
 public enum TileType {Finance, Science, Industry, Military, Social}
+public enum State {Idle, Moving, Bouncing}
 
 public class TileBehaviour : MonoBehaviour{
 
@@ -14,8 +15,13 @@ public class TileBehaviour : MonoBehaviour{
 	public int linkPosition = -1;
 	public string destroyerMessage;
 	public TileInputHandler myInputHandler;
+	public State currentState = State.Idle;
+	
+	//
+	public float moveSpeed;
 	
 	
+	//
 	public float selectedScale = 0.6f;
 	private const float defaultFallTimeInSec = 0.4f;
 	private float bounceHeight = 0.1f;
@@ -29,30 +35,6 @@ public class TileBehaviour : MonoBehaviour{
 		myTransform = transform;
 	}
 	
-	void Update()
-	{
-		
-	}
-
-	public void selfDestroy()
-	{
-		if(tileMovement != null)
-		{
-			Debug.Log ("Should destroy but busy");
-			StopCoroutine(tileMovement);
-			Destroy (transform.gameObject);
-		}
-		else
-		{
-			Destroy (transform.gameObject);
-		}
-	}
-	private IEnumerator destroyAfterCoroutineFinished(IEnumerator coroutine)
-	{
-		Debug.Log ("Waiting to destroy");
-		yield return coroutine;
-		Destroy (transform.gameObject);
-	}
 	
 	public void fallToRow(int distance)
 	{
@@ -73,6 +55,11 @@ public class TileBehaviour : MonoBehaviour{
 	}
 	
 	public void moveTileToPosition(int x, int y, float time = defaultFallTimeInSec)
+	{
+		
+	}
+	
+	private void updateTileMovement()
 	{
 		
 	}
@@ -143,5 +130,18 @@ public class TileBehaviour : MonoBehaviour{
 			
 		}
 		myTransform.position = new Vector3(position.x, y, position.z);
+	}
+	public void selfDestroy()
+	{
+		if(tileMovement != null)
+		{
+			Debug.Log ("Should destroy but busy");
+			StopCoroutine(tileMovement);
+			Destroy (transform.gameObject);
+		}
+		else
+		{
+			Destroy (transform.gameObject);
+		}
 	}
 }

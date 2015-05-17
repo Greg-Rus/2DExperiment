@@ -24,11 +24,12 @@ public class TileInputHandler : MonoBehaviour, IPointerClickHandler, IPointerDow
 	}
 	public void OnPointerEnter(PointerEventData eventData)
 	{
-		BoardController.instance.selectedTile(myTileBehaviour);
+		
+		TileController.instance.selectedTile(myTileBehaviour);
 	}
 	public void OnPointerExit(PointerEventData eventData)
 	{
-		BoardController.instance.unselectedTile(myTileBehaviour);
+		TileController.instance.unselectedTile(myTileBehaviour);
 	}
 	
 	public void isSelected()

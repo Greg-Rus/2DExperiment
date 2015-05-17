@@ -10,6 +10,7 @@ public class GameControll : MonoBehaviour {
 	public int boardHeight = 6;
 	
 	public BoardController boardController;
+	public TileController tileController;
 	public PipeLayerController pipeLayerController;
 	public BoardGenerator boardGenerator;
 	public Camera mainCamera;
@@ -19,6 +20,9 @@ public class GameControll : MonoBehaviour {
 	public InputField selectedHeight;
 	public Toggle usePipesToggle;
 	public PrefabManager prefabManager;
+	public GameObject backGroundObject;
+	private float score;
+	public Text scoreUI;
 	// Use this for initialization
 	void Awake(){
 		instance = this;
@@ -27,7 +31,7 @@ public class GameControll : MonoBehaviour {
 	
 	void Start()
 	{
-		boardController.enabled = false;
+		//boardController.enabled = false;
 		#if UNITY_EDITOR
 		//startGame();
 		#endif
@@ -36,13 +40,18 @@ public class GameControll : MonoBehaviour {
 	
 	public void startGame()
 	{
+		score = 0;
+		scoreUI.text = score.ToString();
 		setBoardWidthAndHeight();
 		initialComponentSetup();
 		boardGenerator.setUpBoard();
 		if(usePipesToggle.isOn)	pipeLayerController.setUpPipeSegments();
 		else pipeLayerController.cleanUpOldPipes();
-		boardController.startNewGame();
-		boardController.enabled = true;
+		
+		tileController.StartNewGame();
+		//tileController.enabled = true;
+		//boardController.startNewGame();
+		//boardController.enabled = true;
 		hideOptionsMenu();
 	}
 	
@@ -60,8 +69,11 @@ public class GameControll : MonoBehaviour {
 	
 	private void initialComponentSetup()
 	{
-		boardController.BoardHeight = boardHeight;
-		boardController.BoardWidth = boardWidth;
+		//boardController.BoardHeight = boardHeight;
+		//boardController.BoardWidth = boardWidth;
+		
+		tileController.BoardHeight = boardHeight;
+		tileController.BoardWidth = boardWidth;
 		
 		pipeLayerController.BoardHeight = boardHeight;
 		pipeLayerController.BoardWidth = boardWidth;
@@ -69,10 +81,12 @@ public class GameControll : MonoBehaviour {
 		boardGenerator.BoardHeight = boardHeight;
 		boardGenerator.BoardWidth = boardWidth;
 		
-		mainCamera.orthographicSize = boardWidth *0.89f;
-		mainCamera.transform.position = new Vector3((boardWidth-1) * 0.5f,
-		                                             (boardHeight-1) * 0.5f,
-		                                             -10f);
+		mainCamera.orthographicSize = boardWidth *0.89f; //TODO need to investigate a cleaner solution. For now 0.89 is the percieved size of one tile
+		Vector3 boardCenterPos = new Vector3((boardWidth-1) * 0.5f,
+		                                     (boardHeight-1) * 0.5f,
+		                                     0f);
+		mainCamera.transform.position = boardCenterPos - (Vector3.forward * 10);
+		backGroundObject.transform.position = boardCenterPos + (Vector3.forward * 10);
 	}
 	
 	public void showOptionsMenu()
@@ -86,5 +100,10 @@ public class GameControll : MonoBehaviour {
 		//boardController.enabled = false; turned on on game start
 		Time.timeScale = 1;
 		menuAnimator.Play("OptionsMenuSlideOut");
+	}
+	public void updateScore(int points)
+	{
+		score += points;
+		scoreUI.text = score.ToString();
 	}
 }
